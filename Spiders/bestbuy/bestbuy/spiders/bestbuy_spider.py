@@ -1,24 +1,43 @@
 import scrapy
+import json
+import requests
+
 
 searchItem = str(raw_input("What are you looking for?: "))
+QUERY_URL = 'http://www.bestbuy.ca/api/v2/json/search?lang=en&include=facets,resources,relatedcategories,relatedqueries,promotions,redirects&query='
+
 
 class bestbuySpider(scrapy.Spider):
 	name = "bestbuy"
-	start_urls = ['http://www.bestbuy.ca/Search/SearchResults.aspx?path=ca77b9b4beca91fe414314b86bb581f8en20&query=%s' % (searchItem)
-	]
+	start_urls = [QUERY_URL + '%s&page=1&pageSize=32&sortBy=relevance&sortDir=desc' % (searchItem)]
+	
 
 	def parse(self, response):
+		for x in range (0,32):
+			
 
-		for products in response.xpath('//div[@class="item-inner clearfix"]'):
+	def parse(self, response):
+		
+		url = QUERY_URL + '%s&page=1&pageSize=32&sortBy=relevance&sortDir=desc' % (searchItem)
+
+		requestsData = requests.get(url)
+
+		totalPages = requestsData.json()['totalPages']
+		pageNumber = requestsData.json()['currentPage']
+		pageSize = requestsData.json()['pageSize']
+
+		for items in range(0,pageSize):
 			yield {
-				'Title' : products.xpath('./div[@class="prod-info"]//h4[@class="prod-title"]/a/text()').extract_first(),
-				'Price': products.xpath('./div[@class="prod-info"]//span[@class="amount"]/text()').extract_first(),
+				'SKU' : requestsData.json()['products'][items]['sku'],
+				'Title': requestsData.json()['products'][items]['name'],
+				'Sale Price' : requestsData.json()['products'][items]['salePrice']
 			}
 
-#How it works now:
-#Make the starting url http://www.bestbuy.ca/Search/SearchResults.aspx?type=product&page=1&sortBy=relevance&sortDir=desc&query=searchItem
-#This is the easiest, but doesn't account for search redirects.
+		if pageNumber <= totalPages:
+			yield Request()
 
-#How I want it to work
-#Find a way to input text into the search box and search
-#retrieve the URL, and have the resulting URL be the spider start_url
+
+#The rest of the URL %s&page=1&pageSize=32&sortBy=relevance&sortDir=desc' % (searchItem)
+
+# r = requests.get('http://www.bestbuy.ca/api/v2/json/search?lang=en&include=facets,resources,relatedcategories,relatedqueries,promotions,redirects&query=burgers&page=2&pageSize=32&sortBy=relevance&sortDir=desc')
+# q = r.json()['products'][parameter]
