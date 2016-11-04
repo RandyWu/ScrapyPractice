@@ -12,8 +12,9 @@ class bestbuySpider(scrapy.Spider):
 	start_urls = [QUERY_URL + '%s&page=1&pageSize=32&sortBy=relevance&sortDir=desc' % (searchItem)]
 	
 
-	def parse(self, response):
-		for x in range (0,32):
+	#TODO: Multiple Parse functions
+	#def parse(self, response):
+	#	for x in range (0,32):
 			
 
 	def parse(self, response):
