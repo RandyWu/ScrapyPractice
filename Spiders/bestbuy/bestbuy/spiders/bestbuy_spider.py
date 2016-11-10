@@ -27,6 +27,9 @@ class bestbuySpider(scrapy.Spider):
 		pageNumber = requestsData.json()['currentPage']
 		pageSize = requestsData.json()['pageSize']
 
+		if pageNumber != 1:
+			url = rl = QUERY_URL + '%s&page=%d1&pageSize=32&sortBy=relevance&sortDir=desc' % (searchItem,pageNumber)
+
 		for items in range(0,pageSize):
 			yield {
 				'SKU' : requestsData.json()['products'][items]['sku'],
