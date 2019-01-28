@@ -8,4 +8,5 @@
 
 class KijijiPipeline(object):
     def process_item(self, item, spider):
+    	x = 10
         return item
